@@ -16,13 +16,7 @@ class Simulation:
         service_probabilities=None,
     ):
         random.seed(time.time())
-        if num_customers < 1:
-            raise ValueError("num_customers must be at least 1")
 
-        if interarrival_probabilities is None:
-            interarrival_probabilities = (0.125,) * 8
-        if service_probabilities is None:
-            service_probabilities = (0.10, 0.20, 0.30, 0.25, 0.10, 0.05)
         self.validate_probabilities("Inter-arrival", interarrival_probabilities)
         self.validate_probabilities("Service-time", service_probabilities)
 
