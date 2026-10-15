@@ -17,9 +17,6 @@ class Simulation:
     ):
         random.seed(time.time())
 
-        self.validate_probabilities("Inter-arrival", interarrival_probabilities)
-        self.validate_probabilities("Service-time", service_probabilities)
-
         self.num_customers = num_customers
         self.num_servers = 1
         self.interarrival_probabilities = tuple(interarrival_probabilities)
@@ -46,14 +43,6 @@ class Simulation:
         self.average_waiting_time = 0
         self.customers_who_waited = 0
         self.probability_customer_waited = 0
-
-    def validate_probabilities(self, name, probabilities):
-        if not probabilities:
-            raise ValueError(f"At least one {name.lower()} probability is required.")
-        if any(probability < 0 or probability > 1 for probability in probabilities):
-            raise ValueError(f"{name} probabilities must be between 0 and 1.")
-        if not math.isclose(sum(probabilities), 1.0, abs_tol=1e-6):
-            raise ValueError(f"{name} probabilities must add up to 1.")
 
     def make_cumulative_probabilities(self, probabilities):
         cumulative_probabilities = []
