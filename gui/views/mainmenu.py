@@ -88,7 +88,7 @@ class MainMenu(customtkinter.CTkFrame):
         )
         self.content.grid(row=0, column=1, sticky="nsew", padx=40, pady=32)
         self.content.grid_columnconfigure(0, weight=1)
-        self.content.grid_rowconfigure((0, 1, 2), weight=1)
+        self.content.grid_rowconfigure(0, weight=1)
 
         self.main_page = customtkinter.CTkFrame(
             self.content,
