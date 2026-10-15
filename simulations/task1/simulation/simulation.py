@@ -3,7 +3,6 @@ import random
 import time
 
 import matplotlib.pyplot as plt
-from prettytable import PrettyTable
 
 from ..server import Server
 from ..customer import Customer
@@ -38,14 +37,21 @@ class Simulation:
             self.service_probabilities
         )
         self.interarrival_random_numbers = [
-            random.random() for _ in range(num_customers)
+            round(random.random(), 3) for _ in range(num_customers)
         ]
-        self.service_random_numbers = [random.random() for _ in range(num_customers)]
+        self.service_random_numbers = [
+            round(random.random(), 3) for _ in range(num_customers)
+        ]
         self.interarrival_times = self.generate_interarrival_times()
         self.service_times = self.generate_service_times()
         self.arrivals = self.build_arrival_times()
         self.customers = self.create_customers()
         self.servers = [Server(1)]
+        self.total_run_time = 0
+        self.total_waiting_time = 0
+        self.average_waiting_time = 0
+        self.customers_who_waited = 0
+        self.probability_customer_waited = 0
 
     def validate_probabilities(self, name, probabilities):
         if not probabilities:
@@ -112,34 +118,22 @@ class Simulation:
             key=lambda item: (item.arrival_time, item.number),
         ):
             self.servers[0].serve_customer(customer)
+        self.calculate_statistics()
         return self.customers
 
-    def print_table(self):
-        table = PrettyTable()
-        table.field_names = [
-            "Customer Number",
-            "Inter-Arrival Time",
-            "Arrival Time (Clock)",
-            "Time Service Begins (Clock)",
-            "Service Time (Duration)",
-            "Time Service Ends (Clock)",
-        ]
+    def calculate_statistics(self):
+        self.total_run_time = max(server.available_at for server in self.servers)
+        self.total_waiting_time = sum(customer.waiting_time for customer in self.customers)
+        self.average_waiting_time = self.total_waiting_time / len(self.customers)
+        self.customers_who_waited = sum(
+            customer.waiting_time > 0 for customer in self.customers
+        )
+        self.probability_customer_waited = (
+            self.customers_who_waited / len(self.customers)
+        )
 
-        for customer in self.customers:
-            interarrival_time = (
-                "-" if customer.interarrival_time is None else customer.interarrival_time
-            )
-            table.add_row(
-                [
-                    customer.number,
-                    interarrival_time,
-                    customer.arrival_time,
-                    customer.service_begins,
-                    customer.service_time,
-                    customer.service_ends,
-                ]
-            )
-        print(table)
+        for server in self.servers:
+            server.calculate_statistics(self.total_run_time)
 
     def create_system_population_graph(self):
         event_changes = {}

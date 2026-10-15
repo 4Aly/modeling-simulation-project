@@ -133,7 +133,9 @@ class Task1Page(customtkinter.CTkFrame):
             text="Schedule",
             font=customtkinter.CTkFont(size=18, weight="bold"),
             text_color="#F4F7F9",
-        ).grid(row=3, column=0, columnspan=2, padx=8, pady=(0, 8), sticky="w")
+        ).grid(row=4, column=0, columnspan=2, padx=8, pady=(0, 8), sticky="w")
+
+        self.setup_statistics_panel()
 
         self.setup_schedule_table()
 
@@ -142,14 +144,14 @@ class Task1Page(customtkinter.CTkFrame):
             text="Customers in system, Q(t)",
             font=customtkinter.CTkFont(size=18, weight="bold"),
             text_color="#F4F7F9",
-        ).grid(row=5, column=0, columnspan=2, padx=8, pady=(18, 8), sticky="w")
+        ).grid(row=6, column=0, columnspan=2, padx=8, pady=(18, 8), sticky="w")
 
         self.graph_frame = customtkinter.CTkFrame(
             self.results,
             fg_color="#17232D",
             corner_radius=8,
         )
-        self.graph_frame.grid(row=6, column=0, columnspan=2, padx=2, pady=(0, 16), sticky="ew")
+        self.graph_frame.grid(row=7, column=0, columnspan=2, padx=2, pady=(0, 16), sticky="ew")
         self.graph_frame.grid_columnconfigure(0, weight=1)
 
         self.setup_table_style()
@@ -173,6 +175,55 @@ class Task1Page(customtkinter.CTkFrame):
         )
         panel.value_label.grid(row=1, column=0, padx=14, pady=(0, 12), sticky="ew")
         return panel
+
+    def setup_statistics_panel(self):
+        panel = customtkinter.CTkFrame(self.results, fg_color="#17232D", corner_radius=8)
+        panel.grid(row=3, column=0, columnspan=2, padx=2, pady=(0, 16), sticky="ew")
+        panel.grid_columnconfigure((0, 1, 2, 3), weight=1)
+
+        customtkinter.CTkLabel(
+            panel,
+            text="Simulation results",
+            font=customtkinter.CTkFont(size=15, weight="bold"),
+            text_color="#F4F7F9",
+        ).grid(row=0, column=0, columnspan=4, padx=12, pady=(10, 8), sticky="w")
+
+        labels = (
+            "Average waiting time",
+            "Probability a customer waited",
+            "Server 1 idle probability",
+            "Average service time",
+        )
+        self.stat_value_labels = []
+        self.stat_detail_labels = []
+        for column, label_text in enumerate(labels):
+            customtkinter.CTkLabel(
+                panel,
+                text=label_text,
+                text_color="#A9B8C3",
+                wraplength=180,
+                justify="left",
+            ).grid(row=1, column=column, padx=12, pady=(0, 4), sticky="w")
+            value_label = customtkinter.CTkLabel(
+                panel,
+                text="-",
+                font=customtkinter.CTkFont(size=18, weight="bold"),
+                text_color="#F4F7F9",
+            )
+            value_label.grid(row=2, column=column, padx=12, pady=(0, 2), sticky="w")
+            self.stat_value_labels.append(value_label)
+
+            detail_label = customtkinter.CTkLabel(
+                panel,
+                text="",
+                text_color="#A9B8C3",
+                font=customtkinter.CTkFont(size=11),
+                wraplength=180,
+                justify="left",
+                anchor="w",
+            )
+            detail_label.grid(row=3, column=column, padx=12, pady=(0, 12), sticky="w")
+            self.stat_detail_labels.append(detail_label)
 
     def create_probability_editor(self, parent, title, defaults, column, digits):
         panel = customtkinter.CTkFrame(parent, fg_color="#17232D", corner_radius=8)
@@ -414,18 +465,43 @@ class Task1Page(customtkinter.CTkFrame):
 
         self.update_generated_values(simulation)
         self.update_schedule_table(simulation)
+        self.update_statistics(simulation)
         self.update_graph(simulation)
         self.status_label.configure(
             text=f"Simulation complete: {num_customers} customers, 1 server",
             text_color="#9BC9B0",
         )
 
+    def update_statistics(self, simulation):
+        server = simulation.servers[0]
+        values = (
+            f"{simulation.average_waiting_time:.3f}",
+            f"{simulation.probability_customer_waited:.3f}",
+            f"{server.idle_time_probability:.3f}",
+            f"{server.average_service_time:.3f}",
+        )
+        customer_count = len(simulation.customers)
+        details = (
+            f"{simulation.total_waiting_time:.3f} total wait / {customer_count} customers",
+            f"{simulation.customers_who_waited} waited / {customer_count} customers",
+            f"{server.total_idle_time:.3f} idle / {simulation.total_run_time:.3f} run time",
+            f"{server.total_service_time:.3f} service / {server.customers_served} customers",
+        )
+        for label, value, detail_label, detail in zip(
+            self.stat_value_labels,
+            values,
+            self.stat_detail_labels,
+            details,
+        ):
+            label.configure(text=value)
+            detail_label.configure(text=detail)
+
     def update_generated_values(self, simulation):
         interarrival_random_numbers = ", ".join(
-            f"{number:.4f}" for number in simulation.interarrival_random_numbers
+            f"{number:.3f}" for number in simulation.interarrival_random_numbers
         )
         service_random_numbers = ", ".join(
-            f"{number:.4f}" for number in simulation.service_random_numbers
+            f"{number:.3f}" for number in simulation.service_random_numbers
         )
         self.interarrival_values_label.configure(
             text=(

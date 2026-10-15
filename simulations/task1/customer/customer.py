@@ -4,6 +4,7 @@ class Customer:
         self.interarrival_time = interarrival_time
         self.arrival_time = arrival_time
         self.service_time = service_time
+        self.waiting_time = 0
         self.service_begins = None
         self.service_ends = None
         self.server_number = None
