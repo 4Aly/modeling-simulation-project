@@ -1,2 +1,3 @@
 dev.py
-**/**/___pycache___/
+__pycache__/
+*.py[cod]
