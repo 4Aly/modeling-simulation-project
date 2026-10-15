@@ -11,9 +11,9 @@ from ..customer import Customer
 class Simulation:
     def __init__(
         self,
-        num_customers=6,
-        interarrival_probabilities=None,
-        service_probabilities=None,
+        num_customers,
+        interarrival_probabilities,
+        service_probabilities,
     ):
         random.seed(time.time())
 
