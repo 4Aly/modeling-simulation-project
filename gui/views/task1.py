@@ -53,7 +53,7 @@ class Task1Page(customtkinter.CTkFrame):
         ).grid(row=0, column=2, padx=(0, 8), pady=12)
         customtkinter.CTkLabel(
             controls,
-            text="1 (fixed)",
+            text="1",
             text_color="#F4F7F9",
             width=76,
         ).grid(row=0, column=3, padx=(0, 18), pady=12)
@@ -125,6 +125,7 @@ class Task1Page(customtkinter.CTkFrame):
             self.interarrival_probability_editor,
             self.service_probability_editor,
         )
+        self.update_probability_totals()
         self.update_probability_totals()
 
         customtkinter.CTkLabel(
@@ -306,13 +307,15 @@ class Task1Page(customtkinter.CTkFrame):
                 probabilities, editor["rows"]
             ):
                 cumulative_probability += probability
-                cumulative_label.configure(text=f"{cumulative_probability:.3f}")
+                cumulative_label.configure(
+                    text=f"{cumulative_probability:.{editor['digits']}f}"
+                )
 
             total = sum(probabilities)
             total_is_valid = math.isclose(total, 1.0, abs_tol=1e-6)
             editor["total_label"].configure(
-                text=f"Total probability: {total:.3f}"
-                + ("" if total_is_valid else " (must equal 1.000)"),
+                text=f"Total probability: {total:.{editor['digits']}f}"
+                + ("" if total_is_valid else " (must equal 1)"),
                 text_color="#9BC9B0" if total_is_valid else "#E88B82",
             )
 
