@@ -378,14 +378,15 @@ class Task1Page(customtkinter.CTkFrame):
             background="#17232D",
             foreground="#F4F7F9",
             fieldbackground="#17232D",
-            rowheight=28,
+            font=("Segoe UI", 20),
+            rowheight=40,
             borderwidth=0,
         )
         style.configure(
             "Task1.Treeview.Heading",
             background="#244B50",
             foreground="#FFFFFF",
-            font=("Segoe UI", 10, "bold"),
+            font=("Segoe UI", 20, "bold"),
             relief="flat",
         )
         style.map(
