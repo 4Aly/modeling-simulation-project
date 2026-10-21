@@ -1,117 +1,56 @@
-# Modeling and Simulation Project
+# Queueing Systems | Modeling & Simulation
 
-A Python desktop application for modeling and simulation coursework. The current GUI contains a Task 1 single-server queue simulation.
+Explore how arrivals, service times, and server assignment shape a queue. This project provides an interactive desktop simulator for two queueing tasks, with editable probability distributions, customer schedules, performance statistics, and visualizations.
 
-## Setup and Run
+## Tasks
 
-Run these commands from the project root in PowerShell:
+### Task 1 — Single-server queue
 
-```powershell
-py -m pip install -r requirements.txt
-py gui/app.py
-```
+Model customers arriving at and receiving service from one server.
 
-The GUI opens on the main menu. Select **Task 1** to enter the simulation inputs and view its results.
+- Set the number of customers.
+- Edit the inter-arrival-time and service-time probability distributions.
+- View generated random values, arrival and service times, the customer schedule, and queue statistics.
+- Visualize the number of customers in the system over time, **Q(t)**.
 
-## Project Structure
+### Task 2 — Multiple-server queue
 
-```text
-gui/
-  app.py                     Starts the CustomTkinter application
-  views/
-    mainmenu.py              Main menu and page navigation
-    task1.py                 Task 1 controls and result display
-simulations/
-  task1/
-    customer/
-      customer.py            Customer data and event times
-    server/
-      server.py              Server availability and server statistics
-    simulation/
-      simulation.py          Random generation, scheduling, metrics, and graph
-    run.py                   Optional command-line simulation runner
-requirements.txt             Third-party Python packages
-```
+Model a shared arrival stream served by multiple servers, each with its own service-time distribution.
 
-## Task 1 GUI
+- Set the customer count and number of servers.
+- Edit one shared inter-arrival distribution and a separate service-time distribution for each server.
+- Configure each server's priority when **Highest Priority** is selected. Lower numbers mean higher priority.
+- Choose how an arriving customer is assigned:
+  - **Highest Priority** — choose the available candidate with the highest configured priority.
+  - **Random** — choose randomly among the candidates.
+  - **Least Utilization** — choose the candidate with the lowest accumulated utilization.
+- Review the generated values and customer schedule, including assigned server and time in queue.
+- Compare average service time, idle probability, and utilization for each server.
+- View **Q(t)** and a busy/idle timeline for every server.
 
-The Task 1 page lets the user set the number of customers. The server count is fixed at one because the assignment specifies a single-server queue.
+> **Stopping condition:** Task 2 currently runs for the entered number of customers. The **Time** option changes the input label, but time-based stopping is not yet implemented.
 
-Both probability distributions are editable:
+## How a Task 2 run works
 
-- **Inter-arrival distribution:** the default has eight outcomes, each with probability `0.125`.
-- **Service-time distribution:** the default probabilities for service times 1 through 6 are `0.10`, `0.20`, `0.30`, `0.25`, `0.10`, and `0.05`.
+1. Customers arrive according to the shared inter-arrival distribution.
+2. At each arrival, idle servers are considered first. If all servers are busy, the candidates are the server or servers that become available soonest.
+3. The selected server's own service-time distribution determines the customer's service duration.
+4. The simulation calculates the schedule and statistics, then updates the charts.
 
-Use `+` to add an outcome or `-` to remove the last outcome. The probability entries must each be between 0 and 1, and the values in each distribution must add up to 1. Cumulative probabilities update as the entries change.
+## Task 2 statistics
 
-After **Run simulation**, the page shows the generated random numbers and times, the customer schedule, four performance measures with their calculation values, and a graph of the number of customers in the system, $Q(t)$.
+| Measure | Calculation |
+| --- | --- |
+| Average waiting time | Total customer waiting time / number of customers |
+| Probability a customer waited | Customers with positive waiting time / number of customers |
+| Average service time, per server | Server's total service time / customers served by that server |
+| Idle probability, per server | Server's total idle time / total simulation run time |
+| Utilization, per server | Server's total time handling calls / total simulation run time |
 
-## Simulation Flow
+## Default Task 2 distributions
 
-`Simulation` accepts the customer count and the two probability lists:
-
-```python
-from simulations.task1.simulation import Simulation
-
-simulation = Simulation(
-    num_customers=6,
-    interarrival_probabilities=[0.125] * 8,
-    service_probabilities=[0.10, 0.20, 0.30, 0.25, 0.10, 0.05],
-)
-customers = simulation.run()
-```
-
-The probability lists are optional; if omitted, the assignment's default distributions are used. The class checks that each list is non-empty, contains probabilities between 0 and 1, and sums to 1.
-
-Each customer receives one random value for inter-arrival generation and one for service-time generation. Values are generated with Python's `random` module and rounded to three decimal places before being mapped through the corresponding cumulative distribution.
-
-For each random value, the simulation selects the first outcome whose cumulative probability is at least that value. Inter-arrival outcome rows represent times 1, 2, 3, and so on. Service-time outcome rows similarly represent service durations 1, 2, 3, and so on.
-
-Customer 1 arrives at clock time 0. The simulation uses the first `num_customers - 1` generated inter-arrival times to calculate the later arrival times. It still displays all generated inter-arrival values, including the last draw that does not determine an arrival in this run.
-
-Customers are served in arrival order. When a customer arrives before the server is free, service begins when the current service ends. The server class records idle time, service time, and how many customers it served.
-
-## Classes and Main Methods
-
-### `Customer`
-
-Defined in `simulations/task1/customer/customer.py`. Each object stores:
-
-- `number`: customer number.
-- `interarrival_time`: time since the previous customer arrived; the first customer has `None`.
-- `arrival_time`: arrival time on the simulation clock.
-- `service_time`: sampled service duration.
-- `waiting_time`: time from arrival until service begins.
-- `service_begins` and `service_ends`: service start and departure clock times.
-- `server_number`: the number of the assigned server, currently always 1.
-
-### `Server`
-
-Defined in `simulations/task1/server/server.py`. `serve_customer(customer)` assigns service start and end times, updates the customer's waiting time, and accumulates server idle and service totals. `calculate_statistics(total_run_time)` calculates idle probability and average service time.
-
-### `Simulation`
-
-Defined in `simulations/task1/simulation/simulation.py`.
-
-- `generate_interarrival_times()` and `generate_service_times()` map random values to distribution outcomes.
-- `build_arrival_times()` starts at time 0 and adds inter-arrival times for subsequent customers.
-- `create_customers()` creates the Customer objects.
-- `run()` schedules every customer on the single server and calculates performance measures. It returns the customer list.
-- `create_system_population_graph()` returns a Matplotlib `(figure, axes)` pair after the simulation has run.
-
-The GUI builds its table from `simulation.customers`, displays the random values and generated times, and embeds the returned Matplotlib figure. The simulation code does not print a console table.
-
-## Performance Measures
-
-The Task 1 page displays the result and the values used to calculate it:
-
-- **Average waiting time:** `total_waiting_time / number_of_customers`.
-- **Probability a customer waited:** `customers_who_waited / number_of_customers`. A customer counts as having waited when `waiting_time > 0`.
-- **Server 1 idle probability:** `total_idle_time / total_run_time`. Total run time ends at the last service completion.
-- **Average service time:** `total_service_time / customers_served`.
-
-Overall waiting measures are stored on the Simulation object. Idle-time and service-time totals and averages are stored on the Server object.
-
-## Current Scope
-
-Task 1 currently supports a fixed number of customers per run and exactly one server. It does not yet have a stop-after-time mode or multiple servers. Changing the number of outcomes in a probability distribution changes the available time values: the first row means time 1, the second row means time 2, and so on.
+| Distribution | Time values | Probabilities |
+| --- | --- | --- |
+| Inter-arrival | 1, 2, 3, 4 | 0.25, 0.40, 0.20, 0.15 |
+| Server 1 service | 2, 3, 4, 5 | 0.30, 0.28, 0.25, 0.17 |
+| Server 2 service | 3, 4, 5, 6 | 0.35, 0.25, 0.20, 0.20 |
