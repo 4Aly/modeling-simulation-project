@@ -6,9 +6,11 @@ from PIL import Image
 if __package__:
     from .task1 import Task1Page
     from .task2 import Task2Page
+    from .task3 import Task3Page
 else:
     from views.task1 import Task1Page
     from views.task2 import Task2Page
+    from views.task3 import Task3Page
 
 
 class MainMenu(customtkinter.CTkFrame):
@@ -87,7 +89,23 @@ class MainMenu(customtkinter.CTkFrame):
             font=customtkinter.CTkFont(size=14),
             command=self.show_task_2,
         )
-        self.task2_button.grid(row=3, column=0, padx=14, pady=(120, 0), sticky="ew")
+        self.task2_button.grid(row=4, column=0, padx=14, pady=(8, 0), sticky="ew")
+
+        self.task3_button = customtkinter.CTkButton(
+            self.sidebar,
+            text="☑   Task 3",
+            anchor="w",
+            height=42,
+            corner_radius=8,
+            fg_color="transparent",
+            border_width=1,
+            border_color="#2B3C4A",
+            hover_color="#1D2C39",
+            text_color="#F4F7F9",
+            font=customtkinter.CTkFont(size=14),
+            command=self.show_task_3,
+        )
+        self.task3_button.grid(row=5, column=0, padx=14, pady=(8, 0), sticky="ew")
     
         customtkinter.CTkLabel(
             self.sidebar,
@@ -95,9 +113,9 @@ class MainMenu(customtkinter.CTkFrame):
             font=customtkinter.CTkFont(size=12),
             text_color="#A9B8C3",
             justify="left",
-        ).grid(row=4, column=0, padx=24, pady=(0, 24), sticky="sw")
+        ).grid(row=6, column=0, padx=24, pady=(0, 24), sticky="sw")
 
-        self.sidebar.grid_rowconfigure(4, weight=1)
+        self.sidebar.grid_rowconfigure(6, weight=1)
 
         self.content = customtkinter.CTkFrame(
             self,
@@ -124,6 +142,10 @@ class MainMenu(customtkinter.CTkFrame):
         self.task2_page = Task2Page(self.content)
         self.task2_page.grid(row=0, column=0, sticky="nsew")
         self.task2_page.grid_remove()
+
+        self.task3_page = Task3Page(self.content)
+        self.task3_page.grid(row=0, column=0, sticky="nsew")
+        self.task3_page.grid_remove()
 
         logo_path = Path(__file__).resolve().parents[2] / "assets" / "fcis.png"
         logo = Image.open(logo_path)
@@ -160,22 +182,38 @@ class MainMenu(customtkinter.CTkFrame):
         self.main_page.grid()
         self.task1_page.grid_remove()
         self.task2_page.grid_remove()
+        self.task3_page.grid_remove()
         self.main_menu_button.configure(fg_color="#244B50")
         self.task1_button.configure(fg_color="transparent")
         self.task2_button.configure(fg_color="transparent")
+        self.task3_button.configure(fg_color="transparent")
 
     def show_task_1(self):
         self.main_page.grid_remove()
         self.task1_page.grid()
         self.task2_page.grid_remove()
+        self.task3_page.grid_remove()
         self.main_menu_button.configure(fg_color="transparent")
         self.task1_button.configure(fg_color="#244B50")
         self.task2_button.configure(fg_color="transparent")
+        self.task3_button.configure(fg_color="transparent")
         
     def show_task_2(self):
         self.main_page.grid_remove()
         self.task1_page.grid_remove()
         self.task2_page.grid()
+        self.task3_page.grid_remove()
         self.main_menu_button.configure(fg_color="transparent")
         self.task1_button.configure(fg_color="transparent")
         self.task2_button.configure(fg_color="#244B50")
+        self.task3_button.configure(fg_color="transparent")
+
+    def show_task_3(self):
+        self.main_page.grid_remove()
+        self.task1_page.grid_remove()
+        self.task2_page.grid_remove()
+        self.task3_page.grid()
+        self.main_menu_button.configure(fg_color="transparent")
+        self.task1_button.configure(fg_color="transparent")
+        self.task2_button.configure(fg_color="transparent")
+        self.task3_button.configure(fg_color="#244B50")

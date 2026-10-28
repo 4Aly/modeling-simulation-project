@@ -1,6 +1,6 @@
 # Queueing Systems | Modeling & Simulation
 
-Explore how arrivals, service times, and server assignment shape a queue. This project provides an interactive desktop simulator for two queueing tasks, with editable probability distributions, customer schedules, performance statistics, and visualizations.
+Explore how arrivals, service times, inventory, and resource assignment shape a system. This project provides interactive desktop simulations with editable probability distributions, detailed simulation tables, performance statistics, and visualizations.
 
 ## Tasks
 
@@ -27,6 +27,17 @@ Model a shared arrival stream served by multiple servers, each with its own serv
 - Review the generated values and customer schedule, including assigned server and time in queue.
 - Compare average service time, idle probability, and utilization for each server.
 - View **Q(t)** and a busy/idle timeline for every server.
+
+### Task 3 — Periodic-review inventory
+
+Simulate an order-up-to inventory policy for a configurable number of days.
+
+- Set the order-up-to level (**M**), review period (**N**), stopping day, starting inventory, and first order's arrival delay and quantity.
+- Edit the daily demand and supplier lead-time probability distributions.
+- Review the complete daily simulation table, including random digits, inventory, shortages, orders, lead times, and arrival countdowns.
+- View average ending inventory and average shortage quantity.
+
+The default demand and lead-time distributions use the values in the Task 3 assignment. Random digits are generated uniformly from 00 to 99. A first order with a delay of two days is added to inventory at the start of day three. Orders placed at a review are scheduled after their lead time has elapsed.
 
 > **Stopping condition:** Task 2 currently runs for the entered number of customers. The **Time** option changes the input label, but time-based stopping is not yet implemented.
 
