@@ -1,7 +1,14 @@
 from pathlib import Path
+import sys
 
 import customtkinter
 from PIL import Image
+
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from simulations.task4 import rngs
 
 if __package__:
     from .task1 import Task1Page
@@ -16,6 +23,7 @@ else:
 class MainMenu(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master, fg_color="#101820", corner_radius=0)
+        rngs.initialize_variables()
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -133,7 +141,7 @@ class MainMenu(customtkinter.CTkFrame):
         )
         self.main_page.grid(row=0, column=0, sticky="nsew")
         self.main_page.grid_columnconfigure(0, weight=1)
-        self.main_page.grid_rowconfigure((0, 1, 2), weight=1)
+        self.main_page.grid_rowconfigure(0, weight=1)
 
         self.task1_page = Task1Page(self.content)
         self.task1_page.grid(row=0, column=0, sticky="nsew")
@@ -152,7 +160,7 @@ class MainMenu(customtkinter.CTkFrame):
         self.logo_image = customtkinter.CTkImage(
             light_image=logo,
             dark_image=logo,
-            size=(360, 240),
+            size=(280, 185),
         )
 
         customtkinter.CTkLabel(
@@ -176,7 +184,138 @@ class MainMenu(customtkinter.CTkFrame):
             text_color="#9FB0BC",
         ).grid(row=2, column=0, padx=20, pady=(0, 30), sticky="n")
 
+        self.create_rng_controls()
+
         self.show_main_menu()
+
+    def create_rng_controls(self):
+        controls = customtkinter.CTkFrame(
+            self.main_page,
+            fg_color="#17232D",
+            corner_radius=8,
+        )
+        controls.grid(row=3, column=0, padx=10, pady=(0, 8), sticky="ew")
+        controls.grid_columnconfigure((0, 1, 2, 3), weight=1)
+
+        customtkinter.CTkLabel(
+            controls,
+            text="Random number generator",
+            font=customtkinter.CTkFont(size=16, weight="bold"),
+            text_color="#F4F7F9",
+        ).grid(row=0, column=0, columnspan=4, padx=14, pady=(12, 4), sticky="w")
+
+        fields = (
+            ("Generator", "generator", 0, 0),
+            ("Seed", "seed", 0, 1),
+            ("Number of values", "count", 0, 2),
+            ("Exponential rate", "rate", 0, 3),
+            ("Multiplier", "multiplier", 2, 0),
+            ("Increment", "increment", 2, 1),
+            ("Modulus", "modulus", 2, 2),
+        )
+        self.rng_entries = {}
+
+        for label, name, row, column in fields:
+            customtkinter.CTkLabel(
+                controls,
+                text=label,
+                text_color="#A9B8C3",
+                anchor="w",
+            ).grid(
+                row=row + 1,
+                column=column,
+                padx=10,
+                pady=(4, 0),
+                sticky="ew",
+            )
+
+            if name == "generator":
+                self.generator_menu = customtkinter.CTkOptionMenu(
+                    controls,
+                    values=[generator.name for generator in rngs.Generator],
+                    height=32,
+                )
+                self.generator_menu.set(rngs.generator.name)
+                self.generator_menu.grid(
+                    row=row + 2,
+                    column=column,
+                    padx=10,
+                    pady=(2, 8),
+                    sticky="ew",
+                )
+            else:
+                entry = customtkinter.CTkEntry(controls, height=32)
+                entry.insert(0, str(getattr(rngs, name)))
+                entry.grid(
+                    row=row + 2,
+                    column=column,
+                    padx=10,
+                    pady=(2, 8),
+                    sticky="ew",
+                )
+                self.rng_entries[name] = entry
+
+        customtkinter.CTkButton(
+            controls,
+            text="Save settings",
+            command=self.store_generator_variables,
+            height=36,
+            corner_radius=6,
+            fg_color="#244B50",
+            hover_color="#2E5D62",
+        ).grid(row=4, column=3, padx=10, pady=(16, 8), sticky="ew")
+
+        self.rng_status_label = customtkinter.CTkLabel(
+            controls,
+            text="",
+            text_color="#A9B8C3",
+            anchor="w",
+        )
+        self.rng_status_label.grid(
+            row=5,
+            column=0,
+            columnspan=4,
+            padx=14,
+            pady=(0, 4),
+            sticky="ew",
+        )
+
+    def store_generator_variables(self):
+        try:
+            generator = rngs.Generator[self.generator_menu.get()]
+            multiplier = int(self.rng_entries["multiplier"].get())
+            increment = int(self.rng_entries["increment"].get())
+            modulus = int(self.rng_entries["modulus"].get())
+            seed = int(self.rng_entries["seed"].get())
+            count = int(self.rng_entries["count"].get())
+            rate = float(self.rng_entries["rate"].get())
+
+            if modulus <= 1:
+                raise ValueError("Modulus must be greater than 1.")
+            if not 0 <= seed < modulus:
+                raise ValueError("Seed must be between 0 and modulus - 1.")
+            if count < 1:
+                raise ValueError("Number of values must be at least 1.")
+            if generator == rngs.Generator.EXPONENTIAL and rate <= 0:
+                raise ValueError("Exponential rate must be greater than 0.")
+
+            rngs.initialize_variables(
+                generator_choice=generator,
+                multiplier_value=multiplier,
+                increment_value=increment,
+                modulus_value=modulus,
+                seed_value=seed,
+                count_value=count,
+                rate_value=rate,
+            )
+        except ValueError as error:
+            self.rng_status_label.configure(text=str(error), text_color="#E88B82")
+            return
+
+        self.rng_status_label.configure(
+            text=f"Settings saved for {generator.name}.",
+            text_color="#9BC9B0",
+        )
 
     def show_main_menu(self):
         self.main_page.grid()
