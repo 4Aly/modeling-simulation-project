@@ -23,7 +23,7 @@ class Inventory:
             self.ending_inventory = 0
 
     def place_order(self):
-        self.order_quantity = (
+        self.order_quantity = max((
             self.order_up_to_level - self.ending_inventory + self.shortage_quantity
-        )
+        ),0)
         return self.order_quantity

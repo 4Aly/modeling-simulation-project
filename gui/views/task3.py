@@ -119,7 +119,7 @@ class Task3Page(customtkinter.CTkFrame):
         input_fields = (
             ("Order-up-to level (M)", "order_up_to_level", "11"),
             ("Review period (N)", "review_period", "5"),
-            ("Number of days", "num_days", "15"),
+            ("Number of days", "num_days", "25"),
             ("Beginning inventory", "beginning_inventory", "3"),
             ("First order arrives after (days)", "first_order_arrives_after", "2"),
             ("First order quantity", "first_order_quantity", "8"),
