@@ -1,3 +1,5 @@
+from simulations.task4 import rngs
+
 from ..day import Day
 from ..inventory import Inventory
 
@@ -23,6 +25,11 @@ class Simulation:
 
         self.demand_distribution = sorted(demand_distribution)
         self.lead_time_distribution = sorted(lead_time_distribution)
+
+        maximum_random_number = max(rngs.random_numbers)
+        self.random_digits = []
+        for number in rngs.random_numbers:
+            self.random_digits.append(number / maximum_random_number * 99)
 
         self.inventory = Inventory(
             beginning_inventory,
@@ -51,6 +58,7 @@ class Simulation:
             ]
 
         for day in range(1, self.num_days + 1):
+            random_number_index = (day - 1) * 2
             is_order_arrival_day = day in orders_by_arrival_day
             if is_order_arrival_day:
                 for order_quantity in orders_by_arrival_day[day]:
@@ -67,6 +75,8 @@ class Simulation:
                 cycle,
                 day_within_cycle,
                 beginning_inventory,
+                self.random_digits[random_number_index],
+                self.random_digits[random_number_index + 1],
             )
 
             demand = self.sample_from_distribution(

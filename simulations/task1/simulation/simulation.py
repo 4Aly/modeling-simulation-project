@@ -1,8 +1,8 @@
 import math
-import random
-import time
 
 import matplotlib.pyplot as plt
+
+from simulations.task4 import rngs
 
 from ..server import Server
 from ..customer import Customer
@@ -15,8 +15,6 @@ class Simulation:
         interarrival_probabilities,
         service_probabilities,
     ):
-        random.seed(time.time())
-
         self.num_customers = num_customers
         self.num_servers = 1
         self.interarrival_probabilities = tuple(interarrival_probabilities)
@@ -27,12 +25,23 @@ class Simulation:
         self.cumulative_service_probabilities = self.make_cumulative_probabilities(
             self.service_probabilities
         )
-        self.interarrival_random_numbers = [
-            round(random.random(), 3) for _ in range(num_customers)
+        
+        
+        maximum_random_number = max(rngs.random_numbers)
+        normalized_random_numbers = []
+        for number in rngs.random_numbers:
+            normalized_random_numbers.append(
+                number / maximum_random_number * 1
+            )
+
+        self.interarrival_random_numbers = normalized_random_numbers[
+            :num_customers
         ]
-        self.service_random_numbers = [
-            round(random.random(), 3) for _ in range(num_customers)
+        self.service_random_numbers = normalized_random_numbers[
+            num_customers:num_customers * 2
         ]
+        
+        
         self.interarrival_times = self.generate_interarrival_times()
         self.service_times = self.generate_service_times()
         self.arrivals = self.build_arrival_times()
