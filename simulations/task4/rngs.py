@@ -72,8 +72,12 @@ def cycle_count(multiplier, increment, modulus, seed):
 def exponential(rate, numbers, modulus):
     random_numbers = []
     for n in numbers:
-        number = 1 - (n / modulus)  # 3ashan tb2a value from from 0 to 1 (never 0 tho)
-        random_numbers.append(-math.log(number) / rate)
+        if n == 1:
+            random_numbers.append(0) # kan bytla3 -0 somehow????
+        else:
+            n = 1 - (n / modulus)  # 3ashan tb2a value from from 0 to 1 (never 0 tho)
+            random_numbers.append(-math.log(n) / rate)
+            
     return random_numbers
 
 
