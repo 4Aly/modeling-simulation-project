@@ -1,3 +1,4 @@
+import math
 from pathlib import Path
 import sys
 
@@ -256,8 +257,8 @@ class MainMenu(customtkinter.CTkFrame):
 
         customtkinter.CTkButton(
             controls,
-            text="Save settings",
-            command=self.store_generator_variables,
+            text="Generate values",
+            command=self.generate_values,
             height=36,
             corner_radius=6,
             fg_color="#244B50",
@@ -279,7 +280,29 @@ class MainMenu(customtkinter.CTkFrame):
             sticky="ew",
         )
 
-    def store_generator_variables(self):
+        customtkinter.CTkLabel(
+            controls,
+            text="Generated values and LCG cycle count",
+            font=customtkinter.CTkFont(size=14, weight="bold"),
+            text_color="#F4F7F9",
+            anchor="w",
+        ).grid(row=6, column=0, columnspan=4, padx=14, pady=(4, 4), sticky="ew")
+
+        self.rng_output = customtkinter.CTkTextbox(
+            controls,
+            height=90,
+            wrap="word",
+        )
+        self.rng_output.grid(
+            row=7,
+            column=0,
+            columnspan=4,
+            padx=14,
+            pady=(0, 12),
+            sticky="ew",
+        )
+
+    def generate_values(self):
         try:
             generator = rngs.Generator[self.generator_menu.get()]
             multiplier = int(self.rng_entries["multiplier"].get())
@@ -295,8 +318,12 @@ class MainMenu(customtkinter.CTkFrame):
                 raise ValueError("Seed must be between 0 and modulus - 1.")
             if count < 1:
                 raise ValueError("Number of values must be at least 1.")
-            if generator == rngs.Generator.EXPONENTIAL and rate <= 0:
-                raise ValueError("Exponential rate must be greater than 0.")
+            if generator == rngs.Generator.EXPONENTIAL and (
+                not math.isfinite(rate) or rate <= 0
+            ):
+                raise ValueError(
+                    "Exponential rate must be a finite value greater than 0."
+                )
 
             rngs.initialize_variables(
                 generator_choice=generator,
@@ -307,12 +334,27 @@ class MainMenu(customtkinter.CTkFrame):
                 count_value=count,
                 rate_value=rate,
             )
+            generated_values = rngs.rng()
+            generated_cycle_count = rngs.cycle_count(
+                multiplier,
+                increment,
+                modulus,
+                seed,
+            )
+            rngs.generate_shared_values()
         except ValueError as error:
             self.rng_status_label.configure(text=str(error), text_color="#E88B82")
             return
 
+        values_text = ", ".join(f"{value:.6g}" for value in generated_values)
+        self.rng_output.delete("1.0", "end")
+        self.rng_output.insert(
+            "1.0",
+            f"Generated values:\n{values_text}\n\n"
+            f"Cycle count: {generated_cycle_count}",
+        )
         self.rng_status_label.configure(
-            text=f"Settings saved for {generator.name}.",
+            text=f"Generated {count} values using {generator.name}.",
             text_color="#9BC9B0",
         )
 
