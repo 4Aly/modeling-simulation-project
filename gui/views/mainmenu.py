@@ -23,7 +23,6 @@ else:
 class MainMenu(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master, fg_color="#101820", corner_radius=0)
-        rngs.initialize_variables()
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
