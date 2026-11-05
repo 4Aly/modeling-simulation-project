@@ -55,33 +55,29 @@ def LCG(multiplier, increment, modulus, seed, count):
     return random_numbers
 
 
+def exponential(rate, numbers, modulus):
+    random_numbers = []
+    for n in numbers:
+        n = 1 - (n / modulus)
+        if n == 0 or n == 1:
+            random_numbers.append(0)
+        else:
+            random_numbers.append(-math.log(n) / rate)
+            
+    return random_numbers
+
 def cycle_count(multiplier, increment, modulus, seed):
     current_value = (multiplier * seed + increment) % modulus
     random_numbers = [current_value]
     first_number = current_value
 
-    generated_count = 0
+    cycle_count = 0
     while True:
         current_value = (multiplier * current_value + increment) % modulus
         random_numbers.append(current_value)
-        generated_count += 1
+        cycle_count += 1
         if current_value == first_number:
-            return generated_count
-
-
-def exponential(rate, numbers, modulus):
-    random_numbers = []
-    for n in numbers:
-        if n == 1:
-            random_numbers.append(0) # kan bytla3 -0 somehow????
-        else:
-            n = 1 - (n / modulus)  # 3ashan tb2a value from from 0 to 1 (never 0 tho)
-            random_numbers.append(-math.log(n) / rate)
-            
-    return random_numbers
-
-
-
+            return cycle_count
 
 
 
