@@ -37,6 +37,10 @@ Simulate an order-up-to inventory policy for a configurable number of days.
 - Review the complete daily simulation table, including random digits, inventory, shortages, orders, lead times, and arrival countdowns.
 - View average ending inventory and average shortage quantity.
 
+### Task 5 — Inventory Simulation
+
+Uses the Task 3 inventory simulation structure as a separate Task 5 implementation.
+
 The default demand and lead-time distributions use the values in the Task 3 assignment. Random digits are generated uniformly from 00 to 99. A first order with a delay of two days is added to inventory at the start of day three. Orders placed at a review are scheduled after their lead time has elapsed.
 
 > **Stopping condition:** Task 2 currently runs for the entered number of customers. The **Time** option changes the input label, but time-based stopping is not yet implemented.
